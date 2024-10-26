@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,6 +35,61 @@ public class BasicItemController {
         model.addAttribute("item",item);
         return "basic/item";
     }
+
+    @GetMapping("/add")
+    public String addForm(){
+        return "basic/addForm";
+    }
+
+//    @PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
+    public String addItemV1(@RequestParam("itemName") String itemName,
+                       @RequestParam("price") int price,
+                       @RequestParam("itemName") Integer quantity,
+                       Model model)
+    {
+        Item item =new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+
+        itemRepository.save(item);
+
+        model.addAttribute("item",item);
+
+        return "basic/item";
+    }
+
+    @PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
+    public String addItemV2(@ModelAttribute("item") Item item,Model model)
+    {
+    /*(
+    @ModelAttribute 는 프론트에서 객체로 받아오고, 자동으로 model.addAttribute("item",item) 의 역할을
+    해주기 때문에 바로 다음 뷰에 객체를 넣어서 보낼 수가 있다
+     */
+        itemRepository.save(item); // 바로 객체 통째로 받아옴
+
+        //model.addAttribute("item",item); // 자동 추가, 생략 가능
+
+        return "basic/item";
+    }
+
+    @GetMapping("/{itemId}/edit") // 해당 상품의 수정 폼을 불러옴
+    public String editForm(@PathVariable("itemId") Long itemId,Model model)
+    {
+        Item item=itemRepository.findById(itemId); // 해당 아이디 번호에 해당하는 상품을 꺼내옴
+        model.addAttribute("item",item);
+        return "basic/editForm";
+    }
+
+    @PostMapping("/{itemId}/edit")// 해당 상품의 수정 폼 제출하기
+    public String edit(@PathVariable("itemId") Long itemId,@ModelAttribute Item item)
+    {
+        itemRepository.update(itemId,item);
+        return "redirect:/basic/items/{itemId}";
+        // redirect: 없으면 무조건 forward, redirect 는 무조건 url 바뀜
+    }
+
+
 
     /*
     테스트용 데이터 추가
