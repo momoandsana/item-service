@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class BasicItemController {
         return "basic/item";
     }
 
-    @PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
+    //@PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
     public String addItemV2(@ModelAttribute("item") Item item,Model model)
     {
     /*(
@@ -71,7 +72,39 @@ public class BasicItemController {
         //model.addAttribute("item",item); // 자동 추가, 생략 가능
 
         return "basic/item";
+        // 지금 이 상태로 리턴하면 새로고침할 때마다 post 요청이 중복되어서 같은 데이터가 여러 개가 들어간다
     }
+
+    //@PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
+    public String addItemV3(@ModelAttribute("item") Item item,Model model)
+    {
+    /*(
+    @ModelAttribute 는 프론트에서 객체로 받아오고, 자동으로 model.addAttribute("item",item) 의 역할을
+    해주기 때문에 바로 다음 뷰에 객체를 넣어서 보낼 수가 있다
+     */
+        itemRepository.save(item); // 바로 객체 통째로 받아옴
+
+        //model.addAttribute("item",item); // 자동 추가, 생략 가능
+
+        return "redirect:/basic/items"+item.getId(); // item.getId() 를 하면 인코딩 문제가 생길 수도 있음
+    }
+
+    @PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
+    public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes)
+    {
+    /*(
+    @ModelAttribute 는 프론트에서 객체로 받아오고, 자동으로 model.addAttribute("item",item) 의 역할을
+    해주기 때문에 바로 다음 뷰에 객체를 넣어서 보낼 수가 있다
+     */
+        Item savedItem=itemRepository.save(item); // 바로 객체 통째로 받아옴
+        redirectAttributes.addAttribute("itemId",savedItem.getId());
+        redirectAttributes.addAttribute("status",true);
+        //model.addAttribute("item",item); // 자동 추가, 생략 가능
+
+        return "redirect:/basic/items/{itemId}"; // item.getId() 를 하면 인코딩 문제가 생길 수도 있음
+    }
+
+
 
     @GetMapping("/{itemId}/edit") // 해당 상품의 수정 폼을 불러옴
     public String editForm(@PathVariable("itemId") Long itemId,Model model)
@@ -88,6 +121,10 @@ public class BasicItemController {
         return "redirect:/basic/items/{itemId}";
         // redirect: 없으면 무조건 forward, redirect 는 무조건 url 바뀜
     }
+
+    /*
+    html form 은 put 이나 patch 를 지원하지 않기 때문에 지금 수정기능도 모두 get & post 로만 처리했다
+     */
 
 
 
