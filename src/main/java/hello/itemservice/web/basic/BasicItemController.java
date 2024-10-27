@@ -61,7 +61,7 @@ public class BasicItemController {
     }
 
     //@PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
-    public String addItemV2(@ModelAttribute("item") Item item,Model model)
+    public String addItemV2(@ModelAttribute("item") Item item)
     {
     /*(
     @ModelAttribute 는 프론트에서 객체로 받아오고, 자동으로 model.addAttribute("item",item) 의 역할을
@@ -136,4 +136,9 @@ public class BasicItemController {
         itemRepository.save(new Item("itemA",10000,10));
         itemRepository.save(new Item("itemB",20000,20));
     }
+
+    /*
+    Model model 을 인수에 넣는 경우는 @RequestParam 으로 받는 경우
+    @ModelAttribute 로 받는 경우에는 Model model 없어도 자동으로 모델이 추가됨
+     */
 }
