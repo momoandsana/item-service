@@ -72,7 +72,7 @@ public class BasicItemController {
         //model.addAttribute("item",item); // 자동 추가, 생략 가능
 
         return "basic/item";
-        // 지금 이 상태로 리턴하면 새로고침할 때마다 post 요청이 중복되어서 같은 데이터가 여러 개가 들어간다
+        // 지금 이 상태로 리턴하면 새로고침할 때마다 post 요청이 계속 들어가서 같은 데이터가 여러 개가 들어간다
     }
 
     //@PostMapping("/add")// 같은 url 이지만 get, post 다르기 때문에 다르게 처리(http method 로 구분)
